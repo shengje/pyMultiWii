@@ -87,27 +87,27 @@ class MultiWii:
         try:
             self.ser.open()
             if self.PRINT:
-                print "Waking up board on "+self.ser.port+"..."
+                print("Waking up board on "+self.ser.port+"...")
             for i in range(1,wakeup):
                 if self.PRINT:
-                    print wakeup-i
+                    print(wakeup-i)
                     time.sleep(1)
                 else:
                     time.sleep(1)
-        except Exception, error:
-            print "\n\nError opening "+self.ser.port+" port.\n"+str(error)+"\n\n"
+        except Exception as error:
+            print("\n\nError opening "+self.ser.port+" port.\n"+str(error)+"\n\n")
 
     """Function for sending a command to the board"""
     def sendCMD(self, data_length, code, data):
         checksum = 0
-        total_data = ['$', 'M', '<', data_length, code] + data
+        total_data = [bytes('$', 'UTF-8'), bytes('M', 'UTF-8'), bytes('<', 'UTF-8'), data_length, code] + data
         for i in struct.pack('<2B%dH' % len(data), *total_data[3:len(total_data)]):
-            checksum = checksum ^ ord(i)
+            checksum = checksum ^ i
         total_data.append(checksum)
         try:
             b = None
             b = self.ser.write(struct.pack('<3c2B%dHB' % len(data), *total_data))
-        except Exception, error:
+        except Exception as error:
             #print "\n\nError in sendCMD."
             #print "("+str(error)+")\n\n"
             pass
@@ -125,9 +125,9 @@ class MultiWii:
     """
     def sendCMDreceiveATT(self, data_length, code, data):
         checksum = 0
-        total_data = ['$', 'M', '<', data_length, code] + data
+        total_data = [bytes('$', 'UTF-8'), bytes('M', 'UTF-8'), bytes('<', 'UTF-8'), data_length, code] + data
         for i in struct.pack('<2B%dH' % len(data), *total_data[3:len(total_data)]):
-            checksum = checksum ^ ord(i)
+            checksum = checksum ^ i
         total_data.append(checksum)
         try:
             start = time.time()
@@ -151,7 +151,7 @@ class MultiWii:
             self.attitude['elapsed']=round(elapsed,3)
             self.attitude['timestamp']="%0.2f" % (time.time(),) 
             return self.attitude
-        except Exception, error:
+        except Exception as error:
             #print "\n\nError in sendCMDreceiveATT."
             #print "("+str(error)+")\n\n"
             pass
@@ -192,7 +192,7 @@ class MultiWii:
         for i in np.arange(1,len(pd),2):
             nd.append(pd[i]+pd[i+1]*256)
         data = pd
-        print "PID sending:",data
+        print("PID sending:",data)
         self.sendCMD(30,MultiWii.SET_PID,data)
         self.sendCMD(0,MultiWii.EEPROM_WRITE,[])
 
@@ -277,7 +277,7 @@ class MultiWii:
                 return self.PIDcoef
             else:
                 return "No return error!"
-        except Exception, error:
+        except Exception as error:
             #print error
             pass
 
@@ -328,7 +328,7 @@ class MultiWii:
                     self.motor['m4']=float(temp[3])
                     self.motor['elapsed']="%0.3f" % (elapsed,)
                     self.motor['timestamp']="%0.2f" % (time.time(),)
-            except Exception, error:
+            except Exception as error:
                 pass
 
     """Function to ask for 2 fixed cmds, attitude and rc channels, and receive them. Note: is a bit slower than others"""
@@ -375,5 +375,6 @@ class MultiWii:
                 return self.message
             else:
                 return "No return error!"
-        except Exception, error:
-            print error
+        except Exception as error:
+            print(error)
+
