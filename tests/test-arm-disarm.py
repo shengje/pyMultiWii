@@ -17,7 +17,7 @@ import time
 if __name__ == "__main__":
 
     #board = MultiWii("/dev/tty.usbserial-AM016WP4")
-    board = MultiWii("COM4")
+    board = MultiWii("COM4") #更改成藍芽連接的COM
     try:
         board.arm()
         print ("Board is armed now!")
